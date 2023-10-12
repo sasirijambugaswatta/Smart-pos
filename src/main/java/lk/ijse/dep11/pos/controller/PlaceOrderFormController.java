@@ -50,7 +50,6 @@ public class PlaceOrderFormController {
                 txtCustomerName.setDisable(true);
             }
         });
-
         cmbItemCode.getSelectionModel().selectedItemProperty().addListener((ov, prev, cur) -> {
             if (cur != null) {
                 txtDescription.setText(cur.getDescription());
@@ -68,6 +67,17 @@ public class PlaceOrderFormController {
                     txt.clear();
                 }
             }
+        });
+        txtQty.textProperty().addListener((ov, prevQty, curQty) -> {
+            Item selectedItem = cmbItemCode.getSelectionModel().getSelectedItem();
+//            btnSave.setDisable(true);
+//            if (cur.matches("\\d+")){
+//                if (Integer.parseInt(cur) <= selectedItem.getQty() && Integer.parseInt(cur) > 0){
+//                    btnSave.setDisable(false);
+//                }
+//            }
+            btnSave.setDisable(!(curQty.matches("\\d+") && Integer.parseInt(curQty) <= selectedItem.getQty()
+                    && Integer.parseInt(curQty) > 0));
         });
     }
 
