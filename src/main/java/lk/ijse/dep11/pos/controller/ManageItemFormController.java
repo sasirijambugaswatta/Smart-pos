@@ -2,6 +2,7 @@ package lk.ijse.dep11.pos.controller;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import com.sun.tools.javac.Main;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -26,13 +27,7 @@ public class ManageItemFormController {
     public JFXTextField txtUnitPrice;
 
     public void navigateToHome(MouseEvent mouseEvent) throws IOException {
-        URL resource = this.getClass().getResource("/view/MainForm.fxml");
-        Parent root = FXMLLoader.load(resource);
-        Scene scene = new Scene(root);
-        Stage primaryStage = (Stage) (this.root.getScene().getWindow());
-        primaryStage.setScene(scene);
-        primaryStage.centerOnScreen();
-        Platform.runLater(primaryStage::sizeToScene);
+        MainFormController.navigateToMain(root);
     }
 
     public void btnAddNew_OnAction(ActionEvent actionEvent) {
