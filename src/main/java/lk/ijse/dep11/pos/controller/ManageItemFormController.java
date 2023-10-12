@@ -148,7 +148,7 @@ public class ManageItemFormController {
         Item selectedItem = tblItems.getSelectionModel().getSelectedItem();
         try {
             if (OrderDataAccess.existsOrderByItemCode(selectedItem.getCode())){
-                new Alert(Alert.AlertType.ERROR, "Failed to delete, item already associated with an order").show();
+                new Alert(Alert.AlertType.ERROR, "Failed to delete, the item already associated with an order").show();
             }else{
                 ItemDataAccess.deleteItem(selectedItem.getCode());
                 tblItems.getItems().remove(selectedItem);
@@ -156,7 +156,7 @@ public class ManageItemFormController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Failed to delete, try again").show();
+            new Alert(Alert.AlertType.ERROR, "Failed to delete the item, try again").show();
         }
     }
 }
