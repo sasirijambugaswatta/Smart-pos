@@ -124,14 +124,19 @@ public class PlaceOrderFormController {
                 .filter(item -> selectedItem.getCode().equals(item.getCode())).findFirst();
 
         if (optOrderItem.isEmpty()) {
+            JFXButton btnDelete = new JFXButton("Delete");
             OrderItem newOrderItem = new OrderItem(selectedItem.getCode(), selectedItem.getDescription(),
-                    Integer.parseInt(txtQty.getText()), selectedItem.getUnitPrice(),
-                    new JFXButton("Delete"));
+                    Integer.parseInt(txtQty.getText()), selectedItem.getUnitPrice(),btnDelete);
             tblOrderDetails.getItems().add(newOrderItem);
+            btnDelete.setOnAction(e -> {
+                tblOrderDetails.getItems().remove(newOrderItem);
+                selectedItem.setQty(selectedItem.getQty() + newOrderItem.getQty());
+                calculateOrderTotal();
+            });
             selectedItem.setQty(selectedItem.getQty() - newOrderItem.getQty());
-        }else{
+        } else {
             OrderItem orderItem = optOrderItem.get();
-            orderItem.setQty(orderItem.getQty() +  Integer.parseInt(txtQty.getText()));
+            orderItem.setQty(orderItem.getQty() + Integer.parseInt(txtQty.getText()));
             tblOrderDetails.refresh();
             selectedItem.setQty(selectedItem.getQty() - Integer.parseInt(txtQty.getText()));
         }
@@ -140,10 +145,10 @@ public class PlaceOrderFormController {
         calculateOrderTotal();
     }
 
-    private void calculateOrderTotal(){
+    private void calculateOrderTotal() {
         Optional<BigDecimal> orderTotal = tblOrderDetails.getItems().stream()
-                .map(OrderItem::getTotal)
-                .reduce(BigDecimal::add);
+                .map(oi -> oi.getTotal())
+                .reduce((prev, cur) -> prev.add(cur));
         lblTotal.setText("Total: Rs. " + orderTotal.get().setScale(2));
     }
 
