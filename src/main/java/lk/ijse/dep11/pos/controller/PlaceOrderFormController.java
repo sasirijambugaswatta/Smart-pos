@@ -14,12 +14,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import lk.ijse.dep11.pos.db.CustomerDataAccess;
 import lk.ijse.dep11.pos.db.ItemDataAccess;
+import lk.ijse.dep11.pos.db.OrderDataAccess;
 import lk.ijse.dep11.pos.tm.Customer;
 import lk.ijse.dep11.pos.tm.Item;
 import lk.ijse.dep11.pos.tm.OrderItem;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -50,6 +52,7 @@ public class PlaceOrderFormController {
         lblDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         newOrder();
         cmbCustomerId.getSelectionModel().selectedItemProperty().addListener((ov, prev, cur) -> {
+            enablePlaceOrderButton();
             if (cur != null) {
                 txtCustomerName.setText(cur.getName());
                 txtCustomerName.setDisable(false);
@@ -106,6 +109,13 @@ public class PlaceOrderFormController {
             cmbCustomerId.getItems().addAll(CustomerDataAccess.getAllCustomers());
             cmbItemCode.getItems().clear();
             cmbItemCode.getItems().addAll(ItemDataAccess.getAllItems());
+            String lastOrderId = OrderDataAccess.getLastOrderId();
+            if (lastOrderId == null){
+                lblId.setText("Order ID: OD001");
+            }else{
+                int newOrderId = Integer.parseInt(lastOrderId.substring(2)) + 1;
+                lblId.setText(String.format("Order ID: OD%03d", newOrderId));
+            }
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Failed to establish database connection, try later").show();
             e.printStackTrace();
@@ -132,6 +142,7 @@ public class PlaceOrderFormController {
                 tblOrderDetails.getItems().remove(newOrderItem);
                 selectedItem.setQty(selectedItem.getQty() + newOrderItem.getQty());
                 calculateOrderTotal();
+                enablePlaceOrderButton();
             });
             selectedItem.setQty(selectedItem.getQty() - newOrderItem.getQty());
         } else {
@@ -143,6 +154,7 @@ public class PlaceOrderFormController {
         cmbItemCode.getSelectionModel().clearSelection();
         cmbItemCode.requestFocus();
         calculateOrderTotal();
+        enablePlaceOrderButton();
     }
 
     private void calculateOrderTotal() {
@@ -155,6 +167,22 @@ public class PlaceOrderFormController {
     public void txtQty_OnAction(ActionEvent actionEvent) {
     }
 
-    public void btnPlaceOrder_OnAction(ActionEvent actionEvent) {
+    private void enablePlaceOrderButton(){
+        Customer selectedCustomer = cmbCustomerId.getSelectionModel().getSelectedItem();
+        btnPlaceOrder.setDisable(!(selectedCustomer != null && !tblOrderDetails.getItems().isEmpty()));
+    }
+
+    public void btnPlaceOrder_OnAction(ActionEvent actionEvent) throws IOException {
+        try {
+            OrderDataAccess.saveOrder(lblId.getText().replace("Order ID: ", "").strip(),
+                    Date.valueOf(lblDate.getText()),
+                    cmbCustomerId.getValue().getId(),
+                    tblOrderDetails.getItems());
+            // Print the pos bill
+            newOrder();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to save the order, try again").show();
+        }
     }
 }
