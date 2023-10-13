@@ -7,9 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class OrderDataAccessTest {
 
@@ -44,5 +46,23 @@ class OrderDataAccessTest {
         SingleConnectionDataSource.getInstance().getConnection().createStatement()
                 .executeUpdate("INSERT INTO order_item (order_id, item_code, qty, unit_price) VALUES ('111111', 'II12345678', 2, 1250.00)");
         assertTrue(OrderDataAccess.existsOrderByItemCode("II12345678"));
+    }
+
+    @Test
+    void getLastOrderId() throws SQLException {
+        ResultSet rst = SingleConnectionDataSource.getInstance().getConnection().createStatement()
+                .executeQuery("SELECT COUNT(id) FROM \"order\"");
+        rst.next();
+        int count = rst.getInt(1);
+        if (count == 0){
+            assertNull(OrderDataAccess.getLastOrderId());
+
+            CustomerDataAccess.saveCustomer(new Customer("ABC", "Crazy", "Panadura"));
+            SingleConnectionDataSource.getInstance().getConnection().createStatement()
+                    .executeUpdate("INSERT INTO \"order\" (id, customer_id) VALUES ('111111', 'ABC')");
+            assertNotNull(OrderDataAccess.getLastOrderId());
+        }else {
+            assertNotNull(OrderDataAccess.getLastOrderId());
+        }
     }
 }
