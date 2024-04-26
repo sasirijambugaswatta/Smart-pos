@@ -29,7 +29,7 @@ To get started with the POS System, follow these steps:
     git clone https://github.com/your-username/pos-system.git
     ```
 
-2. **Configure the Database**: Set up the PostgreSQL database and import the provided schema (`pos_database.sql`) to create the necessary tables.
+2. **Configure the Database**: Set up the PostgreSQL database and import the provided schema (`schema.sql`) to create the necessary tables.
 
 3. **Build and Run the Application**: Compile and run the Java application using your preferred IDE or command line tools.
 
